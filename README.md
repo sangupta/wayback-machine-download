@@ -8,6 +8,25 @@ useful for making up for lost backups and disaster recovery.
 Need
 ----
 
+I lost code to a static website that I maintained for a friend of mine, and the server it was hosted
+on crashed beyond recovery. I was left with two options:
+
+* either to recreate the site manually, which would have been months if not days
+* or, to try and download everything from archive.org
+
+As I found there were two tools that could help me retrieve dump from wayback machine:
+
+* warrick - https://code.google.com/p/warrick/
+* http://waybackdownloader.com/
+
+I tried using `warrick` but for some reason it did not work. My bad - am sure, I would not have 
+configured it properly. Again am not a `Perl` guy so as to debug it. The second option requested 
+me money, and thus was ruled out.
+
+This led to the birth of this tool: to help me recover the site from `wayback machine`.
+
+Am sure someone would need it too, one day!
+
 License
 -------
 	
