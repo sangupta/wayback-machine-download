@@ -17,7 +17,10 @@ import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.jerry.util.ReadableUtils;
 import com.sangupta.jerry.util.UriUtils;
 
-public class WaybackMachineDownload {
+import io.airlift.airline.Command;
+
+@Command(name = "download", description = "Download the entire site")
+public class WaybackMachineDownload implements Runnable {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(WaybackMachineDownload.class);
 	
@@ -39,6 +42,11 @@ public class WaybackMachineDownload {
 		this.baseDir = baseDir;
 		
 		this.crawlQueue.offer(new CrawlableUrl(this.baseUrl, 1));
+	}
+	
+	@Override
+	public void run() {
+		
 	}
 
 	public static void main(String[] args) {
