@@ -13,6 +13,7 @@ import com.sangupta.jerry.http.WebResponse;
 import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.jerry.util.ConsoleUtils;
 import com.sangupta.jerry.util.StringUtils;
+import com.sangupta.jerry.util.UriUtils;
 
 public class WaybackMachineList implements Runnable {
 	
@@ -49,14 +50,14 @@ public class WaybackMachineList implements Runnable {
 		Document doc = Jsoup.parse(html);
 		
 		// find number of times it has been read
-		Elements elements = doc.select("#wbMeta");
-		if(elements == null || elements.isEmpty()) {
+		Elements pops = doc.select("#wbMeta");
+		if(pops == null || pops.isEmpty()) {
 			System.out.println("Unable to detect number of snapshots for the website.");
 			return;
 		}
 		
 		// find number
-		String text = elements.get(0).text();
+		String text = pops.get(0).text();
 		int saved = text.indexOf("Saved ");
 		int times = text.indexOf(" times");
 		
@@ -64,14 +65,14 @@ public class WaybackMachineList implements Runnable {
 		System.out.println("Found " + number + " number of snapshots.");
 		
 		// continue to list
-		String cont = ConsoleUtils.readLine("Continue to list (yes/no)? ", true);
+		String cont = ConsoleUtils.readLine("\nContinue to list (yes/no)? ", true);
 		if(!("yes".equalsIgnoreCase(cont))) {
 			return;
 		}
 		
 		// find all pages to hit from the timeline
-		elements = doc.select("#sparklineImgId");
-		if(elements == null || elements.isEmpty()) {
+		pops = doc.select("#sparklineImgId");
+		if(pops == null || pops.isEmpty()) {
 			System.out.println("Cannot read spark line for exact details of snapshots.");
 			return;
 		}
@@ -80,7 +81,7 @@ public class WaybackMachineList implements Runnable {
 		final List<Integer> yearList = new ArrayList<>();
 		
 		// read the spark line
-		String sparkUrl = elements.get(0).attr("src");
+		String sparkUrl = pops.get(0).attr("src");
 		
 		// parse spark line and read times
 		int index = StringUtils.nthIndexOf(sparkUrl, "_", 2);
@@ -115,6 +116,7 @@ public class WaybackMachineList implements Runnable {
 		for(Integer year : yearList) {
 			// hit the web page
 			url = "http://web.archive.org/web/" + year + "0601000000*/http://" + site;
+			System.out.println("Reading snapshots for year: " + year + " via url: " + url);
 			
 			// get the response page
 			response = WebInvoker.getResponse(url);
@@ -124,25 +126,47 @@ public class WaybackMachineList implements Runnable {
 			}
 			
 			// construct a jsoup doc
-			doc = Jsoup.parse(html);
+			doc = Jsoup.parse(response.getContent());
 			
 			// parse
-			elements = doc.select(".pop");
-			if(elements == null || elements.isEmpty()) {
+			pops = doc.select(".pop");
+			if(pops == null || pops.isEmpty()) {
 				System.out.println("Unable to find any snapshot for the website.");
 				return;
 			}
 			
-			for(index = 0; index < elements.size(); index++) {
-				Element ele = elements.get(index);
+			for(Element pop : pops) {
+				Elements links = pop.select("li a");
+				if(links == null || links.isEmpty()) {
+					continue;
+				}
+				
+				for(Element link : links) {
+					Snapshot snapshot = new Snapshot();
+					snapshot.time = link.text();
+					snapshot.url = UriUtils.addWebPaths("http://web.archive.org", link.attr("href"));
+					
+					snapshots.add(snapshot);
+				}
 			}
+		}
+		
+		// output the entire list
+		System.out.println("\n\nFound " + snapshots.size() + " snapshots:");
+		for(index = 0; index < snapshots.size(); index++) {
+			Snapshot snapshot = snapshots.get(index);
+			System.out.println("Snapshot " + (index + 1) + ":: " + snapshot);
 		}
 	}
 	
 	public static class Snapshot {
-		public String date;
 		public String time;
 		public String url;
+		
+		@Override
+		public String toString() {
+			return this.time + ": " + this.url;
+		}
 	}
 
 }
