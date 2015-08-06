@@ -17,50 +17,58 @@ import com.sangupta.jerry.util.AssertUtils;
 import com.sangupta.jerry.util.ReadableUtils;
 import com.sangupta.jerry.util.UriUtils;
 
-import io.airlift.airline.Command;
-
-@Command(name = "download", description = "Download the entire site")
-public class WaybackMachineDownload implements Runnable {
+public class WaybackMachineDownloader {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(WaybackMachineDownload.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WaybackMachineDownloader.class);
 	
 	private final String baseUrl;
 	
 	private final String site;
 	
-	private final Set<String> allFiles = new HashSet<>();
-	
-	private final Queue<CrawlableUrl> crawlQueue = new LinkedBlockingQueue<>();
-	
-	private int maxDepth = 10;
+	private final int maxDepth;
 	
 	private final File baseDir;
 	
-	public WaybackMachineDownload(String baseUrl, String site, File baseDir) {
-		this.baseUrl = baseUrl;
-		this.site = site;
-		this.baseDir = baseDir;
+	private final Set<String> allFiles = new HashSet<>();
+	
+	private final Queue<CrawlableUrl> crawlQueue = new LinkedBlockingQueue<>();
+
+	/**
+	 * Create an instance of {@link WaybackMachineDownloader}.
+	 * 
+	 * @param configuration
+	 */
+	public WaybackMachineDownloader(WaybackConfiguration configuration) {
+		if(configuration == null) {
+			throw new IllegalArgumentException("Wayback configuration cannot be null");
+		}
+		
+		this.baseUrl = configuration.getWaybackUrl();
+		this.site = configuration.getSite();
+		this.baseDir = new File(configuration.getFolderToDumpDownloadIn());
+		this.maxDepth = configuration.getMaxDepth();
 		
 		this.crawlQueue.offer(new CrawlableUrl(this.baseUrl, 1));
 	}
 	
-	@Override
-	public void run() {
-		
-	}
-
-	public static void main(String[] args) {
-		WaybackMachineDownload wmDownload = new WaybackMachineDownload("http://web.archive.org/web/20140929053608/http://www.matrika-india.org/", "www.matrika-india.org", new File("c:/wayback"));
-		
+	/**
+	 * Start the download process now.
+	 * 
+	 */
+	public void downloadNow() {
 		final long start = System.currentTimeMillis();
 		try {
-			wmDownload.startCrawling();
+			this.startCrawling();
 		} finally {
 			final long end = System.currentTimeMillis();
-			System.out.println("Finished downloading " + wmDownload.allFiles.size() + " files in " + ReadableUtils.getReadableTimeDuration(end - start));
+			System.out.println("Finished downloading " + this.allFiles.size() + " files in " + ReadableUtils.getReadableTimeDuration(end - start));
 		}
 	}
-
+	
+	/**
+	 * Crawl one URL at a time.
+	 * 
+	 */
 	private void startCrawling() {
 		do {
 			CrawlableUrl cu = this.crawlQueue.poll();
@@ -73,6 +81,11 @@ public class WaybackMachineDownload implements Runnable {
 		} while(true);
 	}
 
+	/**
+	 * Download one page/file/asset at a time.
+	 * 
+	 * @param crawlableUrl
+	 */
 	private void downloadPage(CrawlableUrl crawlableUrl) {
 		String url = crawlableUrl.url;
 		if(AssertUtils.isEmpty(url)) {
@@ -85,12 +98,6 @@ public class WaybackMachineDownload implements Runnable {
 		
 		LOGGER.debug("Crawling url: {}", url);
 		
-//		String domain = UriUtils.extractHost(url);
-//		if(!domain.equals(this.site)) {
-//			LOGGER.debug("This url points to a different domain, skipping download: {}", url);
-//			return;
-//		}
-//		
 		// fetch from internet
 		WebResponse response = WebInvoker.getResponse(url);
 		if(response == null) {

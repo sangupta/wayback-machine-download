@@ -11,11 +11,11 @@ public class WaybackMachineDownloadMain {
 		CliBuilder<Runnable> builder = Cli.<Runnable>builder("wmd")
                 .withDescription("Work with Archive.org WayBack Machine")
                 .withDefaultCommand(Help.class)
-                .withCommands(Help.class, WaybackMachineDownload.class, WaybackMachineConfigure.class);
+                .withCommands(Help.class, WaybackMachineDownloadCommand.class, WaybackMachineConfigure.class);
 
-        Cli<Runnable> gitParser = builder.build();
+        Cli<Runnable> wmdParser = builder.build();
 
-        gitParser.parse(args).run();
+        wmdParser.parse(args).run();
 	}
 
 }
