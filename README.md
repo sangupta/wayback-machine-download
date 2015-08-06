@@ -13,6 +13,41 @@ The tool needs to the following to run:
 * Oracle JDK 7 (should work with OpenJDK, but haven't tested)
 * Internet Connection
 
+Usage
+-----
+
+```
+usage: wmd <command> [<args>]
+
+The most commonly used wmd commands are:
+    configure   Generate a configuration for the site
+    download    Download the entire site
+    help        Display help information
+
+See 'wmd help <command>' for more information on a specific command.
+```
+
+To begin the download process, first generate a configuration answering the command prompts:
+
+```
+$ java -jar wayback-machine-download.jar configure
+
+Configuration filename: somesite
+Wayback URL to start with: http://web.archive.org/web/20140929053608/http://www.somesite.com/
+Folder path where to dump the site to: ~/wayback
+Max crawling depth: 5
+```
+
+This will generate a configuration file called `somesite.wmd` in the folder to be used.
+
+To start the download process, execute:
+
+```
+$ java -jar wayback-machine-download.jar download somesite.wmd
+```
+
+This will crawl and dump the entire site in `~/wayback` folder.
+
 Why this tool?
 --------------
 
