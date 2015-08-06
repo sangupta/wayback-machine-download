@@ -5,8 +5,16 @@ A simple command-line interface to interact with <a href="http://archive.org">ar
 **WayBack Machine** including tool to download a snapshot of an entire site. This is particularly
 useful for making up for lost backups and disaster recovery.
 
-Need
-----
+Dependencies
+------------
+
+The tool needs to the following to run:
+
+* Oracle JDK 7 (should work with OpenJDK, but haven't tested)
+* Internet Connection
+
+Why this tool?
+--------------
 
 I lost code to a static website that I maintained for a friend of mine, and the server it was hosted
 on crashed beyond recovery. I was left with two options:
