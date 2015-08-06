@@ -40,3 +40,5 @@ target/*
 /target
 com/sangupta/jerry/*
 /target/
+*.wmd
+dependency-reduced-pom.xml
