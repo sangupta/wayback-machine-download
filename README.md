@@ -74,8 +74,8 @@ License
 -------
 	
 ```
-wmdownload - Wayback Machine Download
-Copyright (c) 2015, Sandeep Gupta
+wmdownload - Download an entire website using Wayback Machine
+Copyright (c) 2015-2016, Sandeep Gupta
 
 http://sangupta.com/projects/wayback-machine-download
 
